@@ -35,7 +35,6 @@ publishing {
             url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
 
             credentials {
-                // Stored in ~/.gradle/gradle.properties
                 username "$mavenUsername"
                 password "$mavenPassword"
             }

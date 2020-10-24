@@ -1,6 +1,5 @@
 package com.shinonometn.media.cue.reader
 
-import com.shinonometn.media.cue.CueInfo
 import com.shinonometn.media.cue.parser.CUE_PROPERTY_FILE_NAME
 import com.shinonometn.media.cue.parser.CUE_PROPERTY_FILE_TYPE
 import com.shinonometn.media.cue.parser.CueNode

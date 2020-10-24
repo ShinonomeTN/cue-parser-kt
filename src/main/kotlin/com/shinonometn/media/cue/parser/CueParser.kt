@@ -60,8 +60,7 @@ private fun parseLineSegments(s: String): List<String> {
  * Return a CueNode as information tree root
  */
 fun CueParser(input: InputStream): CueNode {
-    val root =
-        CueNode(CueNodeType.ROOT)
+    val root = CueNode(CueNodeType.ROOT)
     var visitor = root
 
     var lineNumber = 0
@@ -86,7 +85,7 @@ fun CueParser(input: InputStream): CueNode {
  * Read cue content from a Iterable, it will assume lines are in order.
  * If the line that been processed wasn't created any node, next() will just returning the last node.
  */
-class CueContentParser(
+class CueParser(
     lines: Iterable<String>, val root: CueNode = CueNode(
         CueNodeType.ROOT
     )
@@ -116,18 +115,3 @@ class CueContentParser(
         return iterator.hasNext()
     }
 }
-
-//fun main() {
-//    println("Read CUE in one time.")
-//    val cue = ReadCueFileAsTree(FileInputStream(File("sample.cue")))
-//    println(cue)
-//    println()
-//    println("Read CUE line by line")
-//    val iterator =
-//        CueContentParser(BufferedReader(FileReader(File("sample.cue"))).readLines())
-//    while(iterator.hasNext()) {
-//        iterator.next()
-//        println("Line ${iterator.currentLineNumber}")
-//    }
-//    println(iterator.root)
-//}

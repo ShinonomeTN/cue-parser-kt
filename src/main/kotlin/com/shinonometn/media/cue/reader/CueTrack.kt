@@ -1,7 +1,5 @@
 package com.shinonometn.media.cue.reader
 
-import com.shinonometn.media.cue.MSFTimePoint
-import com.shinonometn.media.cue.asMSFTimePoint
 import com.shinonometn.media.cue.parser.*
 
 fun CueMediaFile.getTrackList(): List<CueTrack> {

@@ -1,7 +1,5 @@
 package com.shinonometn.media.cue.reader
 
-import com.shinonometn.media.cue.CueInfo
-
 typealias AlbumInfoExtractor = AlbumInfo.(Map<String,String>) -> String?
 
 private val EXTRACTOR_DEFAULT : AlbumInfoExtractor = {

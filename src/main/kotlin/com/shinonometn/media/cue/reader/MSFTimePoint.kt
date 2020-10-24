@@ -1,5 +1,17 @@
-package com.shinonometn.media.cue
+package com.shinonometn.media.cue.reader
 
+/**
+ *
+ * The MSF consists of minutes:seconds:frames (mm:ss:ff), the
+ * MSF is either relative to the last FILE command or relative to
+ * the start of the optical media. There are 75 frames per second,
+ * 60 seconds per minute.
+ *
+ * Note that the MSF is defined without the 2 seconds MFS offset,
+ * therefore MSF 00:00:00 equals LBA 0. This is different from the
+ * MSF for the CD itself where MSF 00:02:00 equals LBA 0.
+ *
+ */
 data class MSFTimePoint(var minutes: Int, var seconds: Int, var frames: Int)
 
 private val regex = Regex("^(\\d{2}):(\\d{2}):(\\d{2})$")
