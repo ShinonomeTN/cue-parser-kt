@@ -3,12 +3,12 @@ package com.shinonometn.media.cue.parser
 //
 // CueNodeType
 //
-private typealias CueChildTypeProvider = () -> Set<CueNodeType>
+private typealias CueChildTypeProvider = () -> Set<CueTreeNodeType>
 
-private typealias CueDirectiveHandler = CueNodeType.(node: CueNode, arguments: CueArgument, lineNumber: Int) -> CueNode
+private typealias CueDirectiveHandler = CueTreeNodeType.(node: CueTreeNode, arguments: CueArgument, lineNumber: Int) -> CueTreeNode
 
-private fun CueNodeType.reclusiveFindContainerNode(node: CueNode): CueNode = if (!node.isChildTypeAllowed(this)) {
-    var current: CueNode = node
+private fun CueTreeNodeType.reclusiveFindContainerNode(node: CueTreeNode): CueTreeNode = if (!node.isChildTypeAllowed(this)) {
+    var current: CueTreeNode = node
     while (current.type != this) {
         current = current.parent ?: error("Unexpected reached root node, type ${current.type.name}")
     }
@@ -23,7 +23,7 @@ private fun CueNodeType.reclusiveFindContainerNode(node: CueNode): CueNode = if 
  *
  * Others will just write meta info on the node
  */
-enum class CueNodeType(
+enum class CueTreeNodeType(
     private val childNodeTypes: CueChildTypeProvider,
     internal val directiveHandler: CueDirectiveHandler
 ) {
@@ -179,23 +179,23 @@ enum class CueNodeType(
         }
     );
 
-    val allowedChildren: Set<CueNodeType> by lazy { childNodeTypes() }
+    val allowedChildren: Set<CueTreeNodeType> by lazy { childNodeTypes() }
 }
 
 //
 // Main Commands
 //
 internal val commandMap = mapOf(
-    ";" to CueNodeType.COMMENT,
-    "FILE" to CueNodeType.FILE,
-    "TRACK" to CueNodeType.TRACK,
-    "REM" to CueNodeType.REM,
-    "INDEX" to CueNodeType.INDEX
+    ";" to CueTreeNodeType.COMMENT,
+    "FILE" to CueTreeNodeType.FILE,
+    "TRACK" to CueTreeNodeType.TRACK,
+    "REM" to CueTreeNodeType.REM,
+    "INDEX" to CueTreeNodeType.INDEX
 )
 
 //
 // REM Commands
 //
 internal val remCommandMap = mapOf(
-    "COMMENT" to CueNodeType.REMARKED_COMMENT
+    "COMMENT" to CueTreeNodeType.REMARKED_COMMENT
 )

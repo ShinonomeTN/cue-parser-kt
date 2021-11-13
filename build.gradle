@@ -4,8 +4,15 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.3.61'
 }
 
+ext {
+    mavenUsername = project.findProperty("maven.username") ?: ""
+    mavenPassword = project.findProperty("maven.password") ?: ""
+    mavenRepoRelease = project.findProperty("maven.repo.public.release") ?: ""
+    mavenRepoSnapshot = project.findProperty("maven.repo.public.snapshot") ?: ""
+}
+
 group 'com.shinonometn'
-version '1.0'
+version '2.0'
 
 sourceCompatibility = 1.8
 
@@ -21,17 +28,26 @@ dependencies {
 compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
+
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allSource
+}
+
+task previewMavenPublishInfo {
+    println("Maven User    : $mavenUsername")
+    println("Release Repo  : $mavenRepoRelease")
+    println("Snapshot Repo : $mavenRepoSnapshot")
 }
 
 publishing {
     repositories {
         maven {
-            name = "shinonometn"
-
-            def releasesRepoUrl = "https://nexus.shinonometn.com/repository/maven-releases/"
-            def snapshotsRepoUrl = "https://nexus.shinonometn.com/repository/maven-snapshots/"
+            def releasesRepoUrl = "$mavenRepoRelease"
+            def snapshotsRepoUrl = "$mavenRepoSnapshot"
             url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
 
             credentials {
@@ -43,7 +59,14 @@ publishing {
 
     publications {
         maven(MavenPublication) {
-            from(components.java)
+            artifactId = "cue-parser-kt"
+
+            from components.java
+
+            // Reference : https://kb.novaordis.com/index.php/Gradle_Maven_Publish_Plugin
+            artifact sourceJar {
+                classifier "sources"
+            }
         }
     }
 }

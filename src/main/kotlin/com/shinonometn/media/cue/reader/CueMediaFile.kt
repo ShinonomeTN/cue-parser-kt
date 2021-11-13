@@ -2,15 +2,27 @@ package com.shinonometn.media.cue.reader
 
 import com.shinonometn.media.cue.parser.CUE_PROPERTY_FILE_NAME
 import com.shinonometn.media.cue.parser.CUE_PROPERTY_FILE_TYPE
-import com.shinonometn.media.cue.parser.CueNode
-import com.shinonometn.media.cue.parser.CueNodeType
+import com.shinonometn.media.cue.parser.CueTreeNode
+import com.shinonometn.media.cue.parser.CueTreeNodeType
 
-fun CueInfo.getMediaFileList(): List<CueMediaFile> {
-    var visitor = node
+/**
+ * Return the first file that defined in CUE sheet
+ */
+fun CueInfoReader.mediaFile() : CueMediaFile {
+    return rootNode.children.filter { it.type == CueTreeNodeType.FILE }.map {
+        CueMediaFile(
+            it.properties[CUE_PROPERTY_FILE_NAME] ?: "",
+            it.properties[CUE_PROPERTY_FILE_TYPE] ?: "",
+            it
+        )
+    }.first()
+}
 
-    return visitor.children.filter {
-        it.type == CueNodeType.FILE
-    }.map {
+/**
+ * Return all files that defined in CUE sheet
+ */
+fun CueInfoReader.mediaFileList(): List<CueMediaFile> {
+    return rootNode.children.filter { it.type == CueTreeNodeType.FILE }.map {
         CueMediaFile(
             it.properties[CUE_PROPERTY_FILE_NAME] ?: "",
             it.properties[CUE_PROPERTY_FILE_TYPE] ?: "",
@@ -32,5 +44,5 @@ fun CueInfo.getMediaFileList(): List<CueMediaFile> {
 class CueMediaFile internal constructor(
     val filename: String,
     val type: String,
-    val node: CueNode
+    val node: CueTreeNode
 )

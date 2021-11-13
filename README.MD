@@ -4,58 +4,88 @@ Simple CUE Sheet parser implement in Kotlin
     
 ## Usage
 
-Parse CUE content
+### Parse CUE content
 
 ```kotlin
 fun main() {
-    println("Read CUE in one time.")
+    println("Read CUE sheet file.")
     val cue = CueParser(FileInputStream(File("sample.cue")))
     println(cue)
-    println()
-    println("Read CUE line by line")
-    val iterator = CueParser(BufferedReader(FileReader(File("sample.cue"))).readLines())
-    while(iterator.hasNext()) {
-        iterator.next()
-        println("Line ${iterator.currentLineNumber}")
-    }
-    println(iterator.root)
 }
 ```
     
-Read information using provided reader
+### Read Album information using provided reader
 
 ```kotlin
 fun main() {
-    val cue = CueParser(FileInputStream(File("sample.cue")))
-    println(cue)
-    val cueInfo = CueInfo(cue)
-    println("Album info: ")
-    for(key in AlbumInfo.values()) {
-        val info = cueInfo.getInfo(key) ?: continue
-        println("|-${key.name.toLowerCase().replace("_", " ")}: $info")
-    }
-    println()
-    println("File & Track info Info:")
-    cueInfo.getMediaFileList().forEach { file ->
-        println("|-[${file.type}] File: ${file.filename}")
-        file.getTrackList().forEach {
-            println("  |-Track ${it.number} [${it.type}]")
-            for(key in TrackInfo.values()) {
-                val info = it.getInfo(key) ?: continue
-                println("    |-${key.name.toLowerCase().replace("_", " ")}: $info")
-            }
-        }
+    val reader = CueParser(FileInputStream(File("sample.cue"))).reader()
+    println("""
+        Cue file information:
+        ------------------------------------------------
+        Title    : ${reader.albumInfo(AlbumInfo.Title)}
+        Performer: ${reader.albumInfo(AlbumInfo.Performer)}
+        Genre    : ${reader.albumInfo(AlbumInfo.Genre)}
+        Date     : ${reader.albumInfo(AlbumInfo.Date)}
+        ------------------------------------------------
+        Raw data:
+        ------------------------------------------------
+        ${reader.rootNode.properties}
+    """.trimIndent())
+}
+```
+
+Current supported meta:
+
+- Catalog
+- CDTextFile
+- Performer
+- SongWriter
+- Title
+- DiscID
+- Genre
+- Date
+
+### Read track info
+
+```kotlin
+fun main() {
+    val reader = CueParser(FileInputStream(File("sample.cue"))).reader()
+    val file = reader.mediaFile()
+    val trackList = file.trackList()
+
+    trackList.forEach {
+        println("""
+            Track ${it.number} Info:
+            ---------------------------------------
+            Type     :${it.type}
+            Title    : ${it.trackInfo(TrackInfo.Title)}
+            Performer: ${it.trackInfo(TrackInfo.Performer)}
+            ---------------------------------------
+            Raw data :
+            ${it.node.properties}
+            ---------------------------------------
+        """.trimIndent())
     }
 }
 ```
 
-## CueParser
+Current supported meta:
+
+- Title
+- Performer
+- SongWriter
+- ISRC
+- Number
+- Year
+- Genre
+
+## Details: CueParser
 
 There are two CueParser usage:
-- CueParser() function accept an InputStream, return root node of CUE info tree.
-- CueParser() constructor accept a Iterable of CUE content lines and an optional root node, create an iterator.
+1. CueParser() function accept an InputStream, return root node of CUE info tree. See above.
+2. CueParser() constructor accept an Iterable of CUE content lines, creates an iterator.
 
-Hierarchy of a CUE sheet usually like this:
+The hierarchy of a CUE sheet usually like this:
 
 ```
 - meta
@@ -64,9 +94,9 @@ Hierarchy of a CUE sheet usually like this:
      |- meta
 ```
 
-CUE Sheets not in this hierarchy will case errors when parsing 
+CUE Sheets that not in this hierarchy will cause errors when parsing. 
 
-## CueNode
+### CueNode
 
 Each CueNode has those fields:
 - type: node type
@@ -80,12 +110,13 @@ There are two types of node can become parent:
 
 TRACK has no children.
 
-Parser supporting multiple FILE declaration.
+(The parser supports multiple FILE declaration.)
 
-## CueInfo reader
+## CueInfoReader
 
-CueInfo is a default reader implementation provided. 
+CueInfoReader is the default reader implementation provided, use `CueTreeNode.reader()` on root node to get one.
 
+It uses `CueTreeNode.properties` to read album and track info.
 
 # Reference
 [CUE sheet format](https://github.com/libyal/libodraw/blob/master/documentation/CUE%20sheet%20format.asciidoc)

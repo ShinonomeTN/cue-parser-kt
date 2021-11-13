@@ -1,23 +1,27 @@
 package com.shinonometn.media.cue.reader
 
-fun CueTrack.getInfo(trackInfo: TrackInfo) : String? {
-    var result : String? = null
-    for(key in trackInfo.key) {
-        result = node.properties[key]
-        if(result != null) break
-    }
-    return result
+fun CueTrack.trackInfo(trackInfo: TrackInfo): String? {
+    return with(trackInfo) { extractor(node.properties) }
 }
 
-enum class TrackInfo(internal vararg val key : String) {
-    PERFORMER("performer"),
-    SONG_WRITER("songwriter"),
-    TITLE("title", "track_title"),
+open class TrackInfo internal constructor(
+    vararg key: String, extractor: Extractor = EXTRACTOR_DEFAULT
+) : MetaPropertyReader(*key, extractor = extractor) {
 
-    ISRC("isrc", "isrc_code"),
-    NUMBER("tracknumber"),
-    PREFORMER("preformer", "trackpreformer"),
-    SONGWRITER("songwriter", "tracksongwriter"),
-    YEAR("year"),
-    GENRE("genre")
+    object Title : TrackInfo("title", "track_title")
+//    object TrackTitle : TrackInfo("track_title")
+
+    object Performer : TrackInfo("performer", "trackpreformer", extractor = EXTRACTOR_PREFER_FIRST)
+//    object TrackPerformer : TrackInfo("trackpreformer")
+
+    object SongWriter : TrackInfo("songwriter", "tracksongwriter", extractor = EXTRACTOR_PREFER_FIRST)
+//    object TrackSongWriter : TrackInfo("tracksongwriter")
+
+    object ISRC : TrackInfo("isrc", "isrc_code", extractor = EXTRACTOR_PREFER_FIRST)
+
+    object Number : TrackInfo("tracknumber")
+
+    object Year : TrackInfo("year")
+
+    object Genre : TrackInfo("genre")
 }

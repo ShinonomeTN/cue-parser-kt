@@ -2,8 +2,11 @@ package com.shinonometn.media.cue.reader
 
 import com.shinonometn.media.cue.parser.*
 
-fun CueMediaFile.getTrackList(): List<CueTrack> {
-    return node.children.filter { it.type == CueNodeType.TRACK }.map {
+/**
+ * Get track list of a media file
+ */
+fun CueMediaFile.trackList(): List<CueTrack> {
+    return node.children.filter { it.type == CueTreeNodeType.TRACK }.map {
         CueTrack(
             it.properties[CUE_PROPERTY_TRACK_NUMBER]?.toInt() ?: error("TRACK node has no number"),
             it.properties[CUE_PROPERTY_TRACK_TYPE] ?: "",
@@ -12,7 +15,7 @@ fun CueMediaFile.getTrackList(): List<CueTrack> {
     }
 }
 
-class CueTrack(val number: Int, val type: String, val node: CueNode) {
+class CueTrack(val number: Int, val type: String, val node: CueTreeNode) {
 
     val indexList: List<CueTrackIndex> by lazy {
         node.properties.entries.filter { it.key.startsWith(CUE_PROPERTY_TRACK_INDEX_PREFIX) }.map {

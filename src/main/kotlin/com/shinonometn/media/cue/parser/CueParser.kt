@@ -59,8 +59,8 @@ private fun parseLineSegments(s: String): List<String> {
  * Read cue content from a InputStream
  * Return a CueNode as information tree root
  */
-fun CueParser(input: InputStream): CueNode {
-    val root = CueNode(CueNodeType.ROOT)
+fun CueParser(input: InputStream): CueTreeNode {
+    val root = CueTreeNode(CueTreeNodeType.ROOT)
     var visitor = root
 
     var lineNumber = 0
@@ -71,7 +71,7 @@ fun CueParser(input: InputStream): CueNode {
             val segments = parseLineSegments(line).takeIf { it.size >= 0 } ?: return@use
             val command = segments[0]
 
-            val currentNodeType = commandMap[command] ?: CueNodeType.META
+            val currentNodeType = commandMap[command] ?: CueTreeNodeType.META
             val handler = currentNodeType.directiveHandler
             visitor = handler(currentNodeType, visitor, segments, lineNumber)
         }
@@ -85,11 +85,7 @@ fun CueParser(input: InputStream): CueNode {
  * Read cue content from a Iterable, it will assume lines are in order.
  * If the line that been processed wasn't created any node, next() will just returning the last node.
  */
-class CueParser(
-    lines: Iterable<String>, val root: CueNode = CueNode(
-        CueNodeType.ROOT
-    )
-) : Iterator<CueNode> {
+class CueParser(lines: Iterable<String>, root: CueTreeNode = CueTreeNode(CueTreeNodeType.ROOT)) : Iterator<CueTreeNode> {
     var current = root
         private set
 
@@ -97,14 +93,14 @@ class CueParser(
 
     val iterator = lines.iterator()
 
-    override fun next(): CueNode {
+    override fun next(): CueTreeNode {
         val line = iterator.next()
         currentLineNumber++
 
         val segments = parseLineSegments(line).takeIf { it.size >= 0 } ?: return current
         val command = segments[0]
 
-        val currentNodeType = commandMap[command] ?: CueNodeType.META
+        val currentNodeType = commandMap[command] ?: CueTreeNodeType.META
         val handler = currentNodeType.directiveHandler
         current = handler(currentNodeType, current, segments, currentLineNumber)
 

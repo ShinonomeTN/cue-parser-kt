@@ -1,25 +1,15 @@
 package com.shinonometn.media.cue.reader
 
-typealias AlbumInfoExtractor = AlbumInfo.(Map<String,String>) -> String?
-
-private val EXTRACTOR_DEFAULT : AlbumInfoExtractor = {
-    it[keys[0]]
+/**
+ * Read CUE album info by using provided Key (@see [AlbumInfo])
+ */
+fun CueInfoReader.albumInfo(albumInfo: AlbumInfo) : String? {
+    return with(albumInfo) { extractor(rootNode.properties) }
 }
 
-private val EXTRACTOR_PREFER_FIRST : AlbumInfoExtractor = {
-    var content : String? = null
-    for(key in keys) {
-        content = it[key]
-        if(content != null) break
-    }
-    content
-}
-
-fun CueInfo.getInfo(albumInfo: AlbumInfo) : String? {
-    return albumInfo.extractor.invoke(albumInfo, node.properties)
-}
-
-enum class AlbumInfo(vararg val keys : String, internal val extractor : AlbumInfoExtractor) {
+open class AlbumInfo internal constructor(
+    vararg keys : String, extractor : Extractor
+) : MetaPropertyReader(*keys, extractor = extractor) {
 
     /**
      * About CUE CATALOG command
@@ -38,7 +28,7 @@ enum class AlbumInfo(vararg val keys : String, internal val extractor : AlbumInf
      * It will usually be the first command in the CUE sheet, but this is not mandatory.
      *
      */
-    CATALOG("catalog", extractor = EXTRACTOR_DEFAULT),
+    object Catalog : AlbumInfo("catalog", extractor = EXTRACTOR_DEFAULT)
 
     /**
      * About CUE CDTEXTFILE command
@@ -49,7 +39,7 @@ enum class AlbumInfo(vararg val keys : String, internal val extractor : AlbumInf
      *
      * If the filename contains any spaces, then it must be enclosed in quotation marks.
      */
-    CD_TEXT_FILE("cdtextfile", extractor = EXTRACTOR_DEFAULT),
+    object CDTextFile : AlbumInfo("cdtextfile", extractor = EXTRACTOR_DEFAULT)
 
     /**
      * The PERFORMER command is used to specify the name of a performer.
@@ -61,8 +51,8 @@ enum class AlbumInfo(vararg val keys : String, internal val extractor : AlbumInf
      * If the PERFORMER command appears before any TRACK commands it represents the performer of the entire disc.
      * If the command appears after a TRACK command it represents the performer of the current track.
      */
-    PERFORMER("performer", "albumperformer", extractor = EXTRACTOR_PREFER_FIRST),
-    ALBUM_PERFORMER("albumperformer", "performer", extractor = EXTRACTOR_PREFER_FIRST),
+    object Performer : AlbumInfo("performer", "albumperformer", extractor = EXTRACTOR_PREFER_FIRST)
+//    object AlbumPerformer : AlbumInfo("albumperformer", extractor = EXTRACTOR_PREFER_FIRST)
 
     /**
      * The SONGWRITER command is used to specify the name of a song writer.
@@ -74,8 +64,8 @@ enum class AlbumInfo(vararg val keys : String, internal val extractor : AlbumInf
      * If the SONGWRITER command appears before any TRACK commands it represents the song writer of the entire disc.
      * If the command appears after a TRACK command it represents the song writer of the current track.
      */
-    SONG_WRITER("songwriter", "albumsongwriter", extractor = EXTRACTOR_PREFER_FIRST),
-    ALBUM_SONG_WRITER("albumsongwriter", "songwriter", extractor = EXTRACTOR_PREFER_FIRST),
+    object SongWriter : AlbumInfo("songwriter", "albumsongwriter", extractor = EXTRACTOR_PREFER_FIRST)
+//    object AlbumSongWriter : AlbumInfo("albumsongwriter", extractor = EXTRACTOR_PREFER_FIRST)
 
     /**
      * The TITLE command is used to specify the name of a title.
@@ -87,22 +77,30 @@ enum class AlbumInfo(vararg val keys : String, internal val extractor : AlbumInf
      * If the TITLE command appears before any TRACK commands it represents the title of the entire disc.
      * If the command appears after a TRACK command it represents the title of the current track.
      */
-    TITLE("title", "albumtitle", extractor = EXTRACTOR_PREFER_FIRST),
-    ALBUM_TITLE("albumtitle", "title", extractor = EXTRACTOR_PREFER_FIRST),
+    object Title : AlbumInfo("title", "albumtitle", extractor = EXTRACTOR_PREFER_FIRST)
+//    object AlbumTitle : AlbumInfo("albumtitle", "title", extractor = EXTRACTOR_PREFER_FIRST)
 
     /**
      * An id for the disc. Typically the freedb disc id.
      */
-    DISC_ID("discid", extractor = EXTRACTOR_DEFAULT),
+    object DiscID : AlbumInfo("discid", extractor = EXTRACTOR_DEFAULT)
 
     /**
      * Genre of the album.
      */
-    GENRE("genre", extractor = EXTRACTOR_DEFAULT),
+    object Genre : AlbumInfo("genre", extractor = EXTRACTOR_DEFAULT)
 
     /**
      * Year of the album.
+     * Get the exact 'YEAR' value.
      */
-    YEAR("YEAR", extractor = EXTRACTOR_DEFAULT)
+//    object Year: AlbumInfo("year", extractor = EXTRACTOR_DEFAULT)
+
+    /**
+     * Release date of the album.
+     * If no DATE present, use YEAR.
+     */
+    object Date: AlbumInfo("date", "year", extractor = EXTRACTOR_PREFER_FIRST)
+
 //    TRACK_TITLE("TRACKTITLE"),
 }

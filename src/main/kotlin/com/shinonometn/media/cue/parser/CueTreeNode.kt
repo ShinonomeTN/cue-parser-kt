@@ -6,21 +6,21 @@ import kotlin.collections.LinkedHashMap
 /**
  * Cue information tree node
  */
-class CueNode internal constructor(val type: CueNodeType, val parent: CueNode? = null) {
+class CueTreeNode internal constructor(val type: CueTreeNodeType, val parent: CueTreeNode? = null) {
     internal val propertyMap by lazy { LinkedHashMap<String, String>() }
-    private val _children by lazy { LinkedList<CueNode>() }
+    private val _children by lazy { LinkedList<CueTreeNode>() }
 
     val properties: Map<String, String> = propertyMap
-    val children: List<CueNode> = _children
+    val children: List<CueTreeNode> = _children
 
-    internal fun createChildNode(type: CueNodeType): CueNode {
+    internal fun createChildNode(type: CueTreeNodeType): CueTreeNode {
         if (!isChildTypeAllowed(type)) error("${this.type.name} cannot have ${type.name} as children.")
-        val child = CueNode(type, this)
+        val child = CueTreeNode(type, this)
         _children.add(child)
         return child
     }
 
-    internal fun isChildTypeAllowed(childType: CueNodeType): Boolean {
+    internal fun isChildTypeAllowed(childType: CueTreeNodeType): Boolean {
         return type.allowedChildren.contains(childType)
     }
 
