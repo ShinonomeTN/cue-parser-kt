@@ -5,7 +5,7 @@ name: Deployment@Github
 
 on:
   release: 
-    type: [published]
+    type: [released, prereleased]
 
 jobs:
   build:
