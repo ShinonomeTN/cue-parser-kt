@@ -98,7 +98,7 @@ publishing {
         maven(MavenPublication) {
             artifactId = "cue-parser-kt"
 
-            from components.java
+            from components.kotlin
 
             // Reference : https://kb.novaordis.com/index.php/Gradle_Maven_Publish_Plugin
             artifact sourceJar {
