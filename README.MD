@@ -2,8 +2,7 @@
 
 Simple CUE Sheet parser implemented in Kotlin
 
-[![Deployment@Github](https://github.com/ShinonomeTN/cue-parser-kt/actions/workflows/deploy-github.yml/badge.svg)](https://github.com/ShinonomeTN/cue-parser-kt/actions/workflows/deploy-github.yml)
-[![Deployment@ShinonomeTN](https://github.com/ShinonomeTN/cue-parser-kt/actions/workflows/deploy-shinonometn.yml/badge.svg)](https://github.com/ShinonomeTN/cue-parser-kt/actions/workflows/deploy-shinonometn.yml)
+[![Deployment](https://github.com/ShinonomeTN/cue-parser-kt/actions/workflows/deploy-shinonometn.yml/badge.svg)](https://github.com/ShinonomeTN/cue-parser-kt/actions/workflows/deploy-shinonometn.yml)
 [![Test](https://github.com/ShinonomeTN/cue-parser-kt/actions/workflows/test-gradle.yml/badge.svg)](https://github.com/ShinonomeTN/cue-parser-kt/actions/workflows/test-gradle.yml)
 [![Version](https://img.shields.io/github/v/release/ShinonomeTN/cue-parser-kt?include_prereleases)](https://github.com/ShinonomeTN/cue-parser-kt/releases)
 [![License](https://img.shields.io/github/license/ShinonomeTN/cue-parser-kt)](https://github.com/ShinonomeTN/cue-parser-kt/blob/master/LICENSE.TXT)
@@ -12,13 +11,7 @@ Simple CUE Sheet parser implemented in Kotlin
 
 ## Usage
 
-Add this repository to your project.
-
-```
-https://maven.pkg.github.com/shinonometn/maven-public/
-```
-
-And use it in your project:
+For repository url, please see [ShinonomeTN Public Maven Repository](https://github.com/ShinonomeTN/maven-public)
 
 Maven:
 ```xml
