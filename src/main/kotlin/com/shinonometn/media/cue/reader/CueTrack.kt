@@ -1,29 +1,20 @@
 package com.shinonometn.media.cue.reader
 
+import com.shinonometn.media.cue.core.*
 import com.shinonometn.media.cue.parser.*
 
 /**
  * Get track list of a media file
  */
 fun CueMediaFile.trackList(): List<CueTrack> {
-    return node.children.filter { it.type == CueTreeNodeType.TRACK }.map {
-        CueTrack(
-            it.properties[CUE_PROPERTY_TRACK_NUMBER]?.toInt() ?: error("TRACK node has no number"),
-            it.properties[CUE_PROPERTY_TRACK_TYPE] ?: "",
-            it
-        )
-    }
+    return node.children.filter { it.type == CueTreeNodeType.TRACK }.map(CueTrack.Companion::fromNode)
 }
 
 class CueTrack(val number: Int, val type: String, val node: CueTreeNode) {
 
     val indexList: List<CueTrackIndex> by lazy {
-        node.properties.entries.filter { it.key.startsWith(CUE_PROPERTY_TRACK_INDEX_PREFIX) }.map {
-            val trackNumber = it.key.removePrefix(CUE_PROPERTY_TRACK_INDEX_PREFIX)
-            CueTrackIndex(
-                trackNumber.toInt(),
-                asMSFTimePoint(it.value)
-            )
+        node.children.filter { it.type == CueTreeNodeType.INDEX }.map {
+            CueTrackIndex.fromNode(it)
         }
     }
 
@@ -39,8 +30,8 @@ class CueTrack(val number: Int, val type: String, val node: CueTreeNode) {
      * */
     fun getPreGap(): MSFTimePoint? = indexList.find { it.number == 0 }?.time ?:
     // If index 0 not found, try finding PREGAP command
-    node.properties["pregap"]?.let {
-        asMSFTimePoint(it)
+    node.children.firstOrNull { it.type == CueTreeNodeType.META && it.directive == "PREGAP" }?.let {
+        it.properties["0"]?.toMSFTimePoint()
     }
 
     /**
@@ -53,13 +44,21 @@ class CueTrack(val number: Int, val type: String, val node: CueTreeNode) {
      *
      * See section: MSF
      * */
-    fun getPostGap() : MSFTimePoint? = node.properties["postgap"]?.let {
-        asMSFTimePoint(it)
+    fun getPostGap() : MSFTimePoint? = node.children.firstOrNull { it.type == CueTreeNodeType.META && it.directive == "POSTGAP" }?.let {
+        it.properties["0"]?.toMSFTimePoint()
     }
 
     fun getStart(): CueTrackIndex? = indexList.find { it.number == 1 }
 
-    fun getSubIndex(): List<CueTrackIndex> = indexList.filter { it.number != 0 || it.number != 1 }
+    fun getSubIndex(): List<CueTrackIndex> = indexList.filter { it.number > 1 }
+
+    companion object {
+        fun fromNode(node : CueTreeNode): CueTrack {
+            val number = node.properties["0"]?.toIntOrNull() ?: error("TRACK node has no number")
+            val type = node.properties["1"] ?: ""
+            return CueTrack(number, type, node)
+        }
+    }
 }
 
 /**
@@ -81,4 +80,12 @@ class CueTrack(val number: Int, val type: String, val node: CueTreeNode) {
  *
  * See section: MSF
  * */
-class CueTrackIndex(val number: Int, val time: MSFTimePoint)
+class CueTrackIndex(val number: Int, val time: MSFTimePoint) {
+    companion object {
+        fun fromNode(node: CueTreeNode): CueTrackIndex {
+            val index = node.properties["0"]?.toIntOrNull() ?: error("INDEX node has no index number")
+            val time = (node.properties["1"]?.toMSFTimePoint() ?: error("INDEX node has no time"))
+            return CueTrackIndex(index, time)
+        }
+    }
+}

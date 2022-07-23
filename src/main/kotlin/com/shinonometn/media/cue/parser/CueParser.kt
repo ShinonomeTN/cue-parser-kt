@@ -1,24 +1,11 @@
 package com.shinonometn.media.cue.parser
 
+import com.shinonometn.media.cue.core.CueTreeNodeImpl
+import com.shinonometn.media.cue.core.CueTreeNodeType
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.util.*
-
-//
-// Property keys
-//
-
-const val CUE_PROPERTY_FILE_NAME = "filename"
-const val CUE_PROPERTY_FILE_TYPE = "file_type"
-
-const val CUE_PROPERTY_TRACK_NUMBER = "track_number"
-const val CUE_PROPERTY_TRACK_TYPE = "track_type"
-
-const val CUE_PROPERTY_TRACK_INDEX_PREFIX = "index@"
-
-const val CUE_PROPERTY_COMMENT_PREFIX = "comment@"
-const val CUE_PROPERTY_REM_COMMENT_PREFIX = "remark_comment@"
 
 //
 // Cue Directive argument
@@ -26,6 +13,7 @@ const val CUE_PROPERTY_REM_COMMENT_PREFIX = "remark_comment@"
 internal typealias CueArgument = List<String>
 
 internal fun CueArgument.getDirective() = if (isEmpty()) "" else this[0]
+
 internal fun CueArgument.getParameters(): List<String> = if (size < 2) emptyList() else subList(1, size)
 
 private fun parseLineSegments(s: String): List<String> {
@@ -59,8 +47,9 @@ private fun parseLineSegments(s: String): List<String> {
  * Read cue content from a InputStream
  * Return a CueNode as information tree root
  */
-fun CueParser(input: InputStream): CueTreeNode {
-    val root = CueTreeNode(CueTreeNodeType.ROOT)
+@Suppress("FunctionName")
+fun CueParser(input: InputStream): CueTreeNodeImpl {
+    val root = CueTreeNodeImpl(CueTreeNodeType.ROOT)
     var visitor = root
 
     var lineNumber = 0
@@ -68,10 +57,10 @@ fun CueParser(input: InputStream): CueTreeNode {
     BufferedReader(InputStreamReader(input)).use { reader ->
         reader.lineSequence().forEach { line ->
             lineNumber++
-            val segments = parseLineSegments(line).takeIf { it.size >= 0 } ?: return@use
+            val segments = parseLineSegments(line).takeIf { it.isNotEmpty() } ?: return@use
             val command = segments[0]
 
-            val currentNodeType = commandMap[command] ?: CueTreeNodeType.META
+            val currentNodeType = CueTreeNodeType.literalCommandMappings[command] ?: CueTreeNodeType.META
             val handler = currentNodeType.directiveHandler
             visitor = handler(currentNodeType, visitor, segments, lineNumber)
         }
@@ -82,10 +71,10 @@ fun CueParser(input: InputStream): CueTreeNode {
 
 /**
  * Create a cue iterator, allowing to read cue content line by line.
- * Read cue content from a Iterable, it will assume lines are in order.
- * If the line that been processed wasn't created any node, next() will just returning the last node.
+ * Read cue content from an Iterable, it will assume lines are in order.
+ * If the line that been processed wasn't created any node, next() will just return the last node.
  */
-class CueParser(lines: Iterable<String>, root: CueTreeNode = CueTreeNode(CueTreeNodeType.ROOT)) : Iterator<CueTreeNode> {
+class CueParser(lines: Iterable<String>, root: CueTreeNodeImpl = CueTreeNodeImpl(CueTreeNodeType.ROOT)) : Iterator<CueTreeNodeImpl> {
     var current = root
         private set
 
@@ -93,14 +82,14 @@ class CueParser(lines: Iterable<String>, root: CueTreeNode = CueTreeNode(CueTree
 
     val iterator = lines.iterator()
 
-    override fun next(): CueTreeNode {
+    override fun next(): CueTreeNodeImpl {
         val line = iterator.next()
         currentLineNumber++
 
-        val segments = parseLineSegments(line).takeIf { it.size >= 0 } ?: return current
+        val segments = parseLineSegments(line).takeIf { it.isNotEmpty() } ?: return current
         val command = segments[0]
 
-        val currentNodeType = commandMap[command] ?: CueTreeNodeType.META
+        val currentNodeType = CueTreeNodeType.literalCommandMappings[command] ?: CueTreeNodeType.META
         val handler = currentNodeType.directiveHandler
         current = handler(currentNodeType, current, segments, currentLineNumber)
 

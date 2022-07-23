@@ -1,34 +1,20 @@
 package com.shinonometn.media.cue.reader
 
-import com.shinonometn.media.cue.parser.CUE_PROPERTY_FILE_NAME
-import com.shinonometn.media.cue.parser.CUE_PROPERTY_FILE_TYPE
-import com.shinonometn.media.cue.parser.CueTreeNode
-import com.shinonometn.media.cue.parser.CueTreeNodeType
+import com.shinonometn.media.cue.core.CueTreeNode
+import com.shinonometn.media.cue.core.CueTreeNodeType
 
 /**
  * Return the first file that defined in CUE sheet
  */
-fun CueInfoReader.mediaFile() : CueMediaFile {
-    return rootNode.children.filter { it.type == CueTreeNodeType.FILE }.map {
-        CueMediaFile(
-            it.properties[CUE_PROPERTY_FILE_NAME] ?: "",
-            it.properties[CUE_PROPERTY_FILE_TYPE] ?: "",
-            it
-        )
-    }.first()
+fun CueInfoReader.mediaFile(): CueMediaFile {
+    return rootNode.children.filter { it.type == CueTreeNodeType.FILE }.map(::CueMediaFile).first()
 }
 
 /**
  * Return all files that defined in CUE sheet
  */
 fun CueInfoReader.mediaFileList(): List<CueMediaFile> {
-    return rootNode.children.filter { it.type == CueTreeNodeType.FILE }.map {
-        CueMediaFile(
-            it.properties[CUE_PROPERTY_FILE_NAME] ?: "",
-            it.properties[CUE_PROPERTY_FILE_TYPE] ?: "",
-            it
-        )
-    }
+    return rootNode.children.filter { it.type == CueTreeNodeType.FILE }.map(::CueMediaFile)
 }
 
 /**
@@ -41,8 +27,7 @@ fun CueInfoReader.mediaFileList(): List<CueMediaFile> {
  * If the filename contains any spaces, then it must be enclosed in quotation marks.
  * The first FILE command should be the commands in the CUE sheet with the exception of the CATALOG command.
  * */
-class CueMediaFile internal constructor(
-    val filename: String,
-    val type: String,
-    val node: CueTreeNode
-)
+class CueMediaFile internal constructor(val node: CueTreeNode) {
+    val filename: String = node.properties["0"] ?: ""
+    val type: String = node.properties["1"] ?: ""
+}

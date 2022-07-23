@@ -31,7 +31,7 @@ class CueParserKtTest {
             ------------------------------------------------
             Raw data:
             ------------------------------------------------
-            ${reader.rootNode.properties}
+            ${reader.rootNode}
         """.trimIndent())
     }
 
@@ -62,15 +62,14 @@ class CueParserKtTest {
             logger.info("""
                 Track ${it.number} Info:
                 ---------------------------------------
-                Type     :${it.type}
+                Type     : ${it.type}
                 Title    : ${it.trackInfo(TrackInfo.Title)}
                 Performer: ${it.trackInfo(TrackInfo.Performer)}
                 ---------------------------------------
                 Raw data :
-                ${it.node.properties}
+                ${it.node}
                 ---------------------------------------
             """.trimIndent())
         }
-
     }
 }

@@ -4,7 +4,7 @@ package com.shinonometn.media.cue.reader
  * Read CUE album info by using provided Key (@see [AlbumInfo])
  */
 fun CueInfoReader.albumInfo(albumInfo: AlbumInfo) : String? {
-    return with(albumInfo) { extractor(rootNode.properties) }
+    return with(albumInfo) { extractor(rootNode) }
 }
 
 open class AlbumInfo internal constructor(

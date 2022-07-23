@@ -1,7 +1,7 @@
 package com.shinonometn.media.cue.reader
 
 fun CueTrack.trackInfo(trackInfo: TrackInfo): String? {
-    return with(trackInfo) { extractor(node.properties) }
+    return with(trackInfo) { extractor(node) }
 }
 
 open class TrackInfo internal constructor(

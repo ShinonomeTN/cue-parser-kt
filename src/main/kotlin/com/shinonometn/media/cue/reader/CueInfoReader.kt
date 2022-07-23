@@ -1,7 +1,7 @@
 package com.shinonometn.media.cue.reader
 
-import com.shinonometn.media.cue.parser.CueTreeNode
-import com.shinonometn.media.cue.parser.CueTreeNodeType
+import com.shinonometn.media.cue.core.CueTreeNodeImpl
+import com.shinonometn.media.cue.core.CueTreeNodeType
 
 /**
  * Cue info reader entrance.
@@ -10,11 +10,11 @@ import com.shinonometn.media.cue.parser.CueTreeNodeType
  *
  * Detailed CUE file introductions see https://github.com/libyal/libodraw/blob/master/documentation/CUE%20sheet%20format.asciidoc
  */
-class CueInfoReader(cueInfoRoot: CueTreeNode) {
+class CueInfoReader(cueInfoRoot: CueTreeNodeImpl) {
     init { require(cueInfoRoot.type == CueTreeNodeType.ROOT) { "Given tree node must be a ROOT node" } }
     val rootNode = cueInfoRoot
 }
 
-fun CueTreeNode.reader() : CueInfoReader {
+fun CueTreeNodeImpl.reader() : CueInfoReader {
     return CueInfoReader(this)
 }
