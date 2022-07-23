@@ -5,14 +5,12 @@ plugins {
 }
 
 ext {
-    mavenUsername = project.findProperty("maven.username") ?: ""
-    mavenPassword = project.findProperty("maven.password") ?: ""
-    mavenRepoRelease = project.findProperty("maven.repo.public.release") ?: ""
-    mavenRepoSnapshot = project.findProperty("maven.repo.public.snapshot") ?: ""
+    mavenUsername = project.findProperty("maven.username")
+    mavenPassword = project.findProperty("maven.password")
 }
 
 group 'com.shinonometn'
-version '2.0'
+version '3.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
@@ -22,7 +20,7 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile 'junit:junit:4.13.2'
 }
 
 compileKotlin {
@@ -37,18 +35,57 @@ task sourceJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
-task previewMavenPublishInfo {
-    println("Maven User    : $mavenUsername")
-    println("Release Repo  : $mavenRepoRelease")
-    println("Snapshot Repo : $mavenRepoSnapshot")
+def decideRepositorySet() {
+    def releaseRepositories = [
+            gihub      : [
+                    release : "https://maven.pkg.github.com/shinonometn/maven-public",
+                    snapshot: "https://maven.pkg.github.com/shinonometn/maven-public",
+            ],
+            shinonometn: [
+                    release : "https://nexus.shinonometn.com/repository/maven-releases/",
+                    snapshot: "https://nexus.shinonometn.com/repository/maven-snapshots/",
+            ]
+    ]
+
+    def publishEnvironment = project.findProperty("publish.environment") ?: "shinonometn"
+
+    println "Repository Set: ${publishEnvironment}"
+
+    def release = project.findProperty("maven.repo.public.release") ?: releaseRepositories[publishEnvironment]['release']
+    def snapshot = project.findProperty("maven.repo.public.snapshot") ?: releaseRepositories[publishEnvironment]['snapshot']
+
+    println "Release Repo  : ${release ?: '(unset)'}"
+    println "Snapshot Repo : ${snapshot ?: '(unset)'}"
+
+    ext {
+        mavenRepoRelease = release
+        mavenRepoSnapshot = snapshot
+    }
+}
+
+def previewUsername(String username) {
+    if(username == null) {
+        println "Maven User    : (unset)"
+        return
+    }
+
+    println "Maven User    : ${username.substring(0, 3)}************"
 }
 
 publishing {
+    decideRepositorySet()
+    previewUsername(mavenUsername)
+
+    def releasesRepoUrl = "$mavenRepoRelease"
+    def snapshotsRepoUrl = "$mavenRepoSnapshot"
+    def destination = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+
+    println "Version       : ${version}"
+    println "Publish to    : ${destination}"
+
     repositories {
         maven {
-            def releasesRepoUrl = "$mavenRepoRelease"
-            def snapshotsRepoUrl = "$mavenRepoSnapshot"
-            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            url = destination
 
             credentials {
                 username "$mavenUsername"

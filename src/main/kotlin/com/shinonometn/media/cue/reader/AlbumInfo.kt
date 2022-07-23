@@ -7,9 +7,7 @@ fun CueInfoReader.albumInfo(albumInfo: AlbumInfo) : String? {
     return with(albumInfo) { extractor(rootNode) }
 }
 
-open class AlbumInfo internal constructor(
-    vararg keys : String, extractor : Extractor
-) : MetaPropertyReader(*keys, extractor = extractor) {
+open class AlbumInfo internal constructor(vararg keys : String, extractor : Extractor) : MetaPropertyReader(*keys, extractor = extractor) {
 
     /**
      * About CUE CATALOG command
@@ -51,7 +49,7 @@ open class AlbumInfo internal constructor(
      * If the PERFORMER command appears before any TRACK commands it represents the performer of the entire disc.
      * If the command appears after a TRACK command it represents the performer of the current track.
      */
-    object Performer : AlbumInfo("performer", "albumperformer", extractor = EXTRACTOR_PREFER_FIRST)
+    object Performer : AlbumInfo("performer", "albumperformer", extractor = EXTRACTOR_RECURSIVELY_PREFER_FIRST)
 //    object AlbumPerformer : AlbumInfo("albumperformer", extractor = EXTRACTOR_PREFER_FIRST)
 
     /**
@@ -64,8 +62,12 @@ open class AlbumInfo internal constructor(
      * If the SONGWRITER command appears before any TRACK commands it represents the song writer of the entire disc.
      * If the command appears after a TRACK command it represents the song writer of the current track.
      */
-    object SongWriter : AlbumInfo("songwriter", "albumsongwriter", extractor = EXTRACTOR_PREFER_FIRST)
+    object SongWriter : AlbumInfo("songwriter", "albumsongwriter", extractor = EXTRACTOR_RECURSIVELY_PREFER_FIRST)
 //    object AlbumSongWriter : AlbumInfo("albumsongwriter", extractor = EXTRACTOR_PREFER_FIRST)
+
+    object Arranger : AlbumInfo("arranger", extractor = EXTRACTOR_RECURSIVELY_PREFER_FIRST)
+
+    object Composer : AlbumInfo("composer", extractor = EXTRACTOR_RECURSIVELY_PREFER_FIRST)
 
     /**
      * The TITLE command is used to specify the name of a title.
@@ -77,8 +79,8 @@ open class AlbumInfo internal constructor(
      * If the TITLE command appears before any TRACK commands it represents the title of the entire disc.
      * If the command appears after a TRACK command it represents the title of the current track.
      */
-    object Title : AlbumInfo("title", "albumtitle", extractor = EXTRACTOR_PREFER_FIRST)
-//    object AlbumTitle : AlbumInfo("albumtitle", "title", extractor = EXTRACTOR_PREFER_FIRST)
+    object Title : AlbumInfo("title", "albumtitle", extractor = EXTRACTOR_DEFAULT)
+//    object AlbumTitle : AlbumInfo("albumtitle", "title", extractor = EXTRACTOR_DEFAULT)
 
     /**
      * An id for the disc. Typically the freedb disc id.
@@ -100,7 +102,11 @@ open class AlbumInfo internal constructor(
      * Release date of the album.
      * If no DATE present, use YEAR.
      */
-    object Date: AlbumInfo("date", "year", extractor = EXTRACTOR_PREFER_FIRST)
+    object Date: AlbumInfo("date", "year", extractor = EXTRACTOR_DEFAULT)
 
-//    TRACK_TITLE("TRACKTITLE"),
+    /**
+     * Release year of the album.
+     * If no year present, use DATE.
+     */
+    object Year: AlbumInfo("year", "date", extractor = EXTRACTOR_DEFAULT)
 }

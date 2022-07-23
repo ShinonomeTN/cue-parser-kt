@@ -11,13 +11,13 @@ open class TrackInfo internal constructor(
     object Title : TrackInfo("title", "track_title")
 //    object TrackTitle : TrackInfo("track_title")
 
-    object Performer : TrackInfo("performer", "trackpreformer", extractor = EXTRACTOR_PREFER_FIRST)
+    object Performer : TrackInfo("performer", "trackpreformer", extractor = EXTRACTOR_DEFAULT)
 //    object TrackPerformer : TrackInfo("trackpreformer")
 
-    object SongWriter : TrackInfo("songwriter", "tracksongwriter", extractor = EXTRACTOR_PREFER_FIRST)
+    object SongWriter : TrackInfo("songwriter", "tracksongwriter", extractor = EXTRACTOR_DEFAULT)
 //    object TrackSongWriter : TrackInfo("tracksongwriter")
 
-    object ISRC : TrackInfo("isrc", "isrc_code", extractor = EXTRACTOR_PREFER_FIRST)
+    object ISRC : TrackInfo("isrc", "isrc_code", extractor = EXTRACTOR_DEFAULT)
 
     object Number : TrackInfo("tracknumber")
 

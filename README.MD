@@ -1,8 +1,38 @@
 # CUE File Parser in Kotlin
 
-Simple CUE Sheet parser implement in Kotlin
-    
+Simple CUE Sheet parser implemented in Kotlin
+
+[![Deployment@Github](https://github.com/ShinonomeTN/cue-parser-kt/actions/workflows/deploy-github.yml/badge.svg)](https://github.com/ShinonomeTN/cue-parser-kt/actions/workflows/deploy-github.yml)
+[![Deployment@ShinonomeTN](https://github.com/ShinonomeTN/cue-parser-kt/actions/workflows/deploy-shinonometn.yml/badge.svg)](https://github.com/ShinonomeTN/cue-parser-kt/actions/workflows/deploy-shinonometn.yml)
+[![Test](https://github.com/ShinonomeTN/cue-parser-kt/actions/workflows/test-gradle.yml/badge.svg)](https://github.com/ShinonomeTN/cue-parser-kt/actions/workflows/test-gradle.yml)
+[![Version](https://img.shields.io/github/v/release/ShinonomeTN/cue-parser-kt?include_prereleases)](https://github.com/ShinonomeTN/cue-parser-kt/releases)
+[![License](https://img.shields.io/github/license/ShinonomeTN/cue-parser-kt)](https://github.com/ShinonomeTN/cue-parser-kt/blob/master/LICENSE.TXT)
+
+---
+
 ## Usage
+
+Add this repository to your project.
+
+```
+https://maven.pkg.github.com/shinonometn/maven-public/
+```
+
+And use it in your project:
+
+Maven:
+```xml
+<dependency>
+    <groupId>com.shinonometn</groupId>
+    <artifactId>cue-parser-kt</artifactId>
+    <version>${cue-parser-version}</version>
+</dependency>
+```
+
+Gradle:
+```groovy
+implementation 'com.shinonometn:cue-parser-kt:${cue-parser-version}'
+```
 
 ### Parse CUE content
 
@@ -40,6 +70,8 @@ Current supported meta:
 - CDTextFile
 - Performer
 - SongWriter
+- Arranger
+- Composer
 - Title
 - DiscID
 - Genre
@@ -101,14 +133,15 @@ CUE Sheets that not in this hierarchy will cause errors when parsing.
 Each CueNode has those fields:
 - type: node type
 - parent: parent node, root has no parent
-- properties: a Map containing meta info about this node
+- properties: a Map containing meta info about this node, usually key is argument index, value is argument, `@` means it might be a command.
 - children: child nodes
 
 There are two types of node can become parent:
-- ROOT: the CUE Sheet itself, containing FILEs
-- FILE: containing TRACKs
+- ROOT: the CUE Sheet itself, containing FILEs.
+- FILE: containing TRACKs.
+- TRACK: containing INDEXs and metas.
 
-TRACK has no children.
+REM, metas, and INDEXs have no children.
 
 (The parser supports multiple FILE declaration.)
 
@@ -118,5 +151,23 @@ CueInfoReader is the default reader implementation provided, use `CueTreeNode.re
 
 It uses `CueTreeNode.properties` to read album and track info.
 
+## CueSheet Builder
+
+CueSheet Dsl can help you build a CUE sheet.
+
+```kotlin
+CueSheet {
+    rem("COMMENT", "This is a comment")
+    comment("This is also a comment")
+    file("Hallo Event.wav", "WAV") {
+        track(1, "AUDIO") {
+            index(1, "00:00:00".toMSFTimePoint())
+            meta("TITLE", "Hallo Event")
+        }
+    }
+}
+```
+
 # Reference
-[CUE sheet format](https://github.com/libyal/libodraw/blob/master/documentation/CUE%20sheet%20format.asciidoc)
+- [CUE sheet format](https://github.com/libyal/libodraw/blob/master/documentation/CUE%20sheet%20format.asciidoc)
+- [Cue Sheet File Format Specification](https://wyday.com/cuesharp/specification.php)
