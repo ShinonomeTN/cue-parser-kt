@@ -37,11 +37,11 @@ task sourceJar(type: Jar) {
 
 def decideRepositorySet() {
     def releaseRepositories = [
-            gihub      : [
+            'github': [
                     release : "https://maven.pkg.github.com/shinonometn/maven-public",
                     snapshot: "https://maven.pkg.github.com/shinonometn/maven-public",
             ],
-            shinonometn: [
+            'shinonometn': [
                     release : "https://nexus.shinonometn.com/repository/maven-releases/",
                     snapshot: "https://nexus.shinonometn.com/repository/maven-snapshots/",
             ]
